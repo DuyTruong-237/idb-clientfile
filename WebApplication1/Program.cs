@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using WebApplication1;
+using WebApplication1.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

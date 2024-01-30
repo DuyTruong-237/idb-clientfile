@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1; // Thay thế bằng namespace thực tế của bạn
 using System.Threading.Tasks;
 namespace WebApplication1.Controllers
 
 {
+    using global::WebApplication1.Data;
     using Microsoft.AspNetCore.Mvc;
 
 

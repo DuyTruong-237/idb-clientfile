@@ -3,6 +3,10 @@
     public class Client
     {
         public string Id { get; set; }
+        public Client()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public string CreatedBy { get; set; }

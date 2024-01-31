@@ -29,7 +29,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadExcelFile(IFormFile file)
+        public async Task<IActionResult> UploadExcelFile(uploadFile file)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -38,25 +38,36 @@ namespace WebApplication1.Controllers
                 return BadRequest("File is null or empty");
             }
 
-            if (!Path.GetExtension(file.FileName).Equals(".xlsx", System.StringComparison.OrdinalIgnoreCase))
-            {
-                return BadRequest("Invalid file format. Please upload a valid Excel file.");
-            }
+            //if (!Path.GetExtension(file.FileName).Equals(".xlsx", System.StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return BadRequest("Invalid file format. Please upload a valid Excel file.");
+            //}
+
+            //Danh sách client
+            List<Client> clientList = new List<Client>();
+
             string ValidateVietnameseMobileNumber(string number)
             {
                 string pattern = @"^(09[0-9]|03[2-9]|07[0-9]|08[1-9]|05[6-9])[0-9]{7}$";
 
                 return Regex.IsMatch(number, pattern) ? number : null;
             }
-            using (var stream = new MemoryStream())
+            string filePath = file.urlFile;
+            if (filePath is null)
             {
-                await file.CopyToAsync(stream);
+                return NotFound("File not found");
+            }
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                //await file.CopyToAsync(stream);
                 using (var package = new ExcelPackage(stream))
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                     int rowCount = worksheet.Dimension.Rows;
                     int colCount = worksheet.Dimension.Columns;
 
+                    //Xác định tên của cột
                     Dictionary<string, int> columnMappings = new Dictionary<string, int>
                     {
                         { "Số hợp đồng", -1 },
@@ -68,7 +79,6 @@ namespace WebApplication1.Controllers
                         { "Tổng nợ", -1 },
                         { "Số tiền cần thanh toán hàng tháng", -1 }
                     };
-
                     for (int col = 1; col <= colCount; col++)
                     {
                         var cellValue = worksheet.Cells[1, col].Value?.ToString().Trim();
@@ -78,6 +88,7 @@ namespace WebApplication1.Controllers
                         }
                     }
 
+                    // Duyệt để lấy giá trị từng hàng 
                     for (int row = 2; row <= rowCount; row++)
                     { 
                         
@@ -105,13 +116,22 @@ namespace WebApplication1.Controllers
                             C_Totalliabilities = tongno,
                             C_AmountMonthly = hangthang
                         };
-
+                        //Thêm vào danh sách 
+                        clientList.Add(client);
+                        // Add vào db trực tiếp
                         _context.app_fd_info_client.Add(client);
+
                     }
 
                     await _context.SaveChangesAsync();
                 }
             }
+            var respondData = new
+            {
+                Clients = clientList,
+                agent = file.createBy,
+                date
+            };
 
             return Ok("File uploaded successfully");
         }

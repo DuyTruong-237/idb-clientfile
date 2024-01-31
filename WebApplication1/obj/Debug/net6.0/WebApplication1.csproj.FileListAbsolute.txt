@@ -41,9 +41,6 @@ C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Deb
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\System.Security.Permissions.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\System.Windows.Extensions.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\System.Xml.XPath.XmlDocument.dll
-C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll
-C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll
-C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.csproj.AssemblyReference.cache
@@ -53,7 +50,6 @@ C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Deb
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.csproj.CoreCompileInputs.cache
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.sourcelink.json
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\staticwebassets.build.json
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\staticwebassets.development.json
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\staticwebassets\msbuild.WebApplication1.Microsoft.AspNetCore.StaticWebAssets.props
@@ -154,3 +150,12 @@ D:\idb\idb\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6
 D:\idb\idb\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 D:\idb\idb\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 D:\idb\idb\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\EPPlus.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\EPPlus.Interfaces.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\EPPlus.System.Drawing.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll

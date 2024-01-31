@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\idb\\idb\\idb-clientfile\\WebApplication1\\WebApplication1.csproj": {}
+    "C:\\Users\\Lucky\\Source\\Repos\\DuyTruong-237\\idb-clientfile\\WebApplication1\\WebApplication1.csproj": {}
   },
   "projects": {
-    "D:\\idb\\idb\\idb-clientfile\\WebApplication1\\WebApplication1.csproj": {
+    "C:\\Users\\Lucky\\Source\\Repos\\DuyTruong-237\\idb-clientfile\\WebApplication1\\WebApplication1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\idb\\idb\\idb-clientfile\\WebApplication1\\WebApplication1.csproj",
+        "projectUniqueName": "C:\\Users\\Lucky\\Source\\Repos\\DuyTruong-237\\idb-clientfile\\WebApplication1\\WebApplication1.csproj",
         "projectName": "WebApplication1",
-        "projectPath": "D:\\idb\\idb\\idb-clientfile\\WebApplication1\\WebApplication1.csproj",
-        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-        "outputPath": "D:\\idb\\idb\\idb-clientfile\\WebApplication1\\obj\\",
+        "projectPath": "C:\\Users\\Lucky\\Source\\Repos\\DuyTruong-237\\idb-clientfile\\WebApplication1\\WebApplication1.csproj",
+        "packagesPath": "C:\\Users\\Lucky\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Lucky\\Source\\Repos\\DuyTruong-237\\idb-clientfile\\WebApplication1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Lucky\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -82,7 +82,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.418\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     }

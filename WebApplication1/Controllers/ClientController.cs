@@ -89,60 +89,162 @@ namespace WebApplication1.Controllers
                         }
                     }
 
-                    // Duyệt để lấy giá trị từng hàng 
-                    for (int row = 2; row <= rowCount; row++)
-                    { 
-                        
-                        var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
-                        if (soHopDong == null)
-                            continue;
-                        var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
-                        var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
-                        var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
-                        var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
-                        if (ValidateVietnameseMobileNumber(phone) == null)
-                            phone = "";
-                        var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
-                        var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
-                        var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
-
-                        var client = new Client
+                    // Kiểm tra tiêu đề các cột
+                    if (columnMappings.Any(pair => pair.Value == -1))
+                    {
+                        Console.WriteLine("File không đáp ứng yêu cầu về tiêu đề cột.");
+                        var respondData1 = new
                         {
-                            C_IdContract = soHopDong,
-                            C_Name = name,
-                            C_CMND = cmnd,
-                            C_DayOfBirth = dob,
-                            C_Phone = phone,
-                            C_Address = address,
-                            C_Totalliabilities = tongno,
-                            C_AmountMonthly = hangthang
+                            agent = file.createBy,
+                            dateImport = file.dateUpload,
+                            messeage = "File không đáp ứng yêu cầu về tiêu đề cột!"
                         };
-                        //Thêm vào danh sách 
-                        clientList.Add(client);
-                        // Add vào db trực tiếp
-                        //_context.app_fd_info_client.Add(client);
-                        //Add thông qua store procedure của SQL
-                        try
+
+                        return Ok(respondData1);
+                    }
+                    int batchSize = 20000;
+                    int totalRows = rowCount - 1; // Bỏ qua hàng đầu tiên vì nó là tiêu đề
+                    int batches = (int)Math.Ceiling((double)totalRows / batchSize);
+                    for (int batchIndex = 0;batchIndex < batches; batchIndex++)
+                    {
+                        int startRow = batchIndex * batchSize + 1; // Bắt đầu từ hàng thứ 2 (hàng đầu tiên là tiêu đề)
+                        int endRow = Math.Min((batchIndex + 1) * batchSize, totalRows) + 1;
+
+                        // Xử lý từ startRow đến endRow
+                        for (int row = startRow+1; row <= endRow; row++)
                         {
-                            _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
-                            //_context.app_fd_info_client.Add(client);
+                            // Thực hiện xử lý của bạn ở đây
+                            var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
+                            var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
+                            var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
+                            var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
+                            var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
+                            var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
+                            var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
+                            var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
+                            var message = "✔ Hợp đồng hợp lệ";
+                            var result = 0;
+                            //Kiểm tra điều kiện
+                            //Nếu hợp động null thì skip thực hiện qua row tiếp theo hoặc nếu trùng với số hợp đồng đã có từ trước sẽ lấy thằng đầu 
+                            if (soHopDong == null)
+                            {
+                                message = "✗ Không có mã hợp đồng! \n ";
+                                result = 1;
+                                //continue;
+                            }
+                            else if (clientList.Any(c => c.C_IdContract == soHopDong))
+                            {
+                                message = "✗ Chỉ lấy hợp đồng đầu tiên! \n";
+                                result = 1;
+                                //continue;
+                            }
+                            if (ValidateVietnameseMobileNumber(phone) == null)
+                            {
+                                message += "⚠ Sai định dạng số điện thoại! \n";
+                                phone = "";
+                            }
+
+                            var client = new Client
+                            {
+                                C_IdContract = soHopDong,
+                                C_Name = name,
+                                C_CMND = cmnd,
+                                C_DayOfBirth = dob,
+                                C_Phone = phone,
+                                C_Address = address,
+                                C_Totalliabilities = tongno,
+                                C_AmountMonthly = hangthang,
+                                messeage = message,
+                                result = result
+                            };
+                            //Thêm vào danh sách 
+                            clientList.Add(client);
+                            //Add thông qua store procedure của SQL
+                            try
+                            {
+                                if(client.result != 1)
+                                {
+                                    _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message );
-                        }
-                        
                     }
 
+                    // Duyệt để lấy giá trị từng hàng 
+                    //for (int row = 2; row <= rowCount; row++)
+                    //{ 
+                        
+                    //    var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
+                    //    var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
+                    //    var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
+                    //    var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
+                    //    var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
+                    //    var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
+                    //    var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
+                    //    var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
+                    //    var message = "";
+                    //    var result = 0;
+                    //    //Kiểm tra điều kiện
+                    //    //Nếu hợp động null thì skip thực hiện qua row tiếp theo hoặc nếu trùng với số hợp đồng đã có từ trước sẽ lấy thằng đầu 
+                    //    if (soHopDong == null)
+                    //    {
+                    //        message += "Không có mã hợp đồng! \n ";
+                    //        result = 1;
+                    //        //continue;
+                    //    }
+                    //    else if (clientList.Any(c => c.C_IdContract == soHopDong))
+                    //    {
+                    //        message += "Chỉ lấy hợp đồng đầu tiên! \n";
+                    //        result = 1;
+                    //        //continue;
+                    //    }
+                    //    if (ValidateVietnameseMobileNumber(phone) == null)
+                    //    {
+                    //        message += "Sai định dạng số điện thoại! \n";
+                    //        phone = "";
+                    //    }
+
+                    //    var client = new Client
+                    //    {
+                    //        C_IdContract = soHopDong,
+                    //        C_Name = name,
+                    //        C_CMND = cmnd,
+                    //        C_DayOfBirth = dob,
+                    //        C_Phone = phone,
+                    //        C_Address = address,
+                    //        C_Totalliabilities = tongno,
+                    //        C_AmountMonthly = hangthang,
+                    //        messeage = message,
+                    //        result = result
+                    //    };
+                    //    //Thêm vào danh sách 
+                    //    clientList.Add(client);
+                    //    //Add thông qua store procedure của SQL
+                    //    try
+                    //    {
+                    //        _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        Console.WriteLine(ex.Message);
+                    //    }
+
+                    //}
+                    //Dùng cơ chế batch để thực hiện cho 20k inser vào db
                     await _context.SaveChangesAsync();
                 }
             }
+
             var respondData = new
             {
                 Clients = clientList,
                 agent = file.createBy,
-                dateImport = file.dateUpload,
-                messeage = "Row hợp lệ"
+                dateImport = file.dateUpload
             };
 
             return Ok(respondData);

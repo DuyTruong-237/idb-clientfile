@@ -159,3 +159,4 @@ C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Deb
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Lucky\Source\Repos\DuyTruong-237\idb-clientfile\WebApplication1\obj\Debug\net6.0\WebApplication1.sourcelink.json

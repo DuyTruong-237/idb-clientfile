@@ -21,6 +21,8 @@
         public string C_Name { get; set; }
         public string C_DayOfBirth { get; set; }
         public string C_CMND { get; set; }
+        public string messeage { get; set; }
+        public int result { get; set; }
         public ICollection<Member> members { get; set; }
     }
 }

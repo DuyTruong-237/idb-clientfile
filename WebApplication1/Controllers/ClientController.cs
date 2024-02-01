@@ -33,7 +33,7 @@ namespace WebApplication1.Controllers
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            if (file == null || file.Length == 0)
+            if (file == null || file.urlFile.Length == 0)
             {
                 return BadRequest("File is null or empty");
             }
@@ -73,12 +73,13 @@ namespace WebApplication1.Controllers
                         { "Số hợp đồng", -1 },
                         { "Tên khách hàng", -1 },
                         { "CMND", -1 },
-                        { "Ngày sinh", -1 },
+                        { "Ngày Sinh", -1 },
                         { "SDT", -1 },
                         { "Địa chỉ", -1 },
                         { "Tổng nợ", -1 },
                         { "Số tiền cần thanh toán hàng tháng", -1 }
                     };
+                    //Xác định thứ tự các cột có trong file 
                     for (int col = 1; col <= colCount; col++)
                     {
                         var cellValue = worksheet.Cells[1, col].Value?.ToString().Trim();
@@ -97,7 +98,7 @@ namespace WebApplication1.Controllers
                             continue;
                         var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
                         var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
-                        var dob = GetCellValue(worksheet, row, columnMappings["Ngày sinh"]);
+                        var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
                         var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
                         if (ValidateVietnameseMobileNumber(phone) == null)
                             phone = "";
@@ -119,8 +120,18 @@ namespace WebApplication1.Controllers
                         //Thêm vào danh sách 
                         clientList.Add(client);
                         // Add vào db trực tiếp
-                        _context.app_fd_info_client.Add(client);
-
+                        //_context.app_fd_info_client.Add(client);
+                        //Add thông qua store procedure của SQL
+                        try
+                        {
+                            _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
+                            //_context.app_fd_info_client.Add(client);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message );
+                        }
+                        
                     }
 
                     await _context.SaveChangesAsync();
@@ -130,10 +141,11 @@ namespace WebApplication1.Controllers
             {
                 Clients = clientList,
                 agent = file.createBy,
-                date
+                dateImport = file.dateUpload,
+                messeage = "Row hợp lệ"
             };
 
-            return Ok("File uploaded successfully");
+            return Ok(respondData);
         }
 
         private string GetCellValue(ExcelWorksheet worksheet, int row, int col)

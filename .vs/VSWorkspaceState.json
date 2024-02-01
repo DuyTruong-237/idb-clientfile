@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\WebApplication1",
+    "\\WebApplication1\\Controllers"
   ],
+  "SelectedNode": "\\WebApplication1\\Controllers\\ClientController.cs",
   "PreviewInSolutionExplorer": false
 }

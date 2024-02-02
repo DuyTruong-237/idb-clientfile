@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using MySqlX.XDevAPI.Common;
 using Renci.SshNet.Messages;
 using System.Xml.Linq;
+using MySqlX.XDevAPI.Relational;
 
 namespace WebApplication1.Controllers
 {
@@ -62,7 +63,11 @@ namespace WebApplication1.Controllers
             string filePath = file.urlFile;
             if (filePath is null)
             {
-                return NotFound("File not found");
+                return BadRequest(new
+                {
+                    messeage = "File không được tìm thấy! Vui lòng kiểm tra lại đường dẫn",
+                    errorCode =""
+                });
             }
 
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -102,17 +107,19 @@ namespace WebApplication1.Controllers
                                 columnMappings[cellValue] = col;
                             }
                         }
+
+
                         // Kiểm tra xem sheet hiện tại có chứa các cột hợp lệ hay không
-                        var missingColumns = columnMappings.Where(pair => pair.Value == -1).Select(pair => pair.Key).ToList();
+                        //var missingColumns = columnMappings.Where(pair => pair.Value == -1).Select(pair => pair.Key).ToList();
                         // Kiểm tra tiêu đề các cột
-                        if (missingColumns.Any())
+                        if (!columnMappings.ContainsKey("Số hợp đồng") || columnMappings["Số hợp đồng"] == -1)
                         {
                             Console.WriteLine("File không đáp ứng yêu cầu về tiêu đề cột.");
                             var respondData1 = new
                             {
                                 Clients = new Client
                                 {
-                                    C_IdContract = "",
+                                    C_IdContract = "NULL",
                                     C_Name = "",
                                     C_CMND = "",
                                     C_DayOfBirth = "",
@@ -121,41 +128,56 @@ namespace WebApplication1.Controllers
                                     C_Totalliabilities = "",
                                     C_AmountMonthly = "",
                                     result = 0,
-                                    messeage = $"✗ File {file.fileName} không đáp ứng yêu cầu về tiêu đề cột!",
-                                    positionError = $"Lỗi thiếu cột {string.Join(",",missingColumns)} của {sheetName}"
+                                    messeage = $"✗ File {file.fileName} không đúng theo template!",
+                                    positionError = $"Lỗi thiếu cột Hợp đồng của {sheetName}"
                                 },
                                 agent = file.createBy,
                                 dateImport = file.dateUpload,
                             };
                             return Ok(respondData1);
                         }
-                        int batchSize = 20000;
+                        int batchSize1 = 20000;
                         int totalRows = rowCount - 1; // Bỏ qua hàng đầu tiên vì nó là tiêu đề
-                        int batches = (int)Math.Ceiling((double)totalRows / batchSize);
-                        for (int batchIndex = 0; batchIndex < batches; batchIndex++)
+                        int batches1 = (int)Math.Ceiling((double)totalRows / batchSize1);
+                        for (int batchIndex = 0; batchIndex < batchSize1; batchIndex++)
                         {
-                            int startRow = batchIndex * batchSize + 1; // Bắt đầu từ hàng thứ 2 (hàng đầu tiên là tiêu đề)
-                            int endRow = Math.Min((batchIndex + 1) * batchSize, totalRows) + 1;
+                            int startRow = batchIndex * batchSize1 + 1; // Bắt đầu từ hàng thứ 2 (hàng đầu tiên là tiêu đề)
+                            int endRow = Math.Min((batchIndex + 1) * batchSize1, totalRows) + 1;
 
                             // Xử lý từ startRow đến endRow
                             for (int row = startRow + 1; row <= endRow; row++)
                             {
+
+
                                 // Thực hiện xử lý của bạn ở đây
-                                var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
-                                var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
-                                var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
-                                var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
-                                var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
-                                var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
-                                var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
-                                var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
+                                //var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
+                                //var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
+                                //var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
+                                //var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
+                                //var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
+                                //var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
+                                //var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
+                                //var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
+                                //var message = "✔ Hợp đồng hợp lệ";
+                                //var positionError = "NULL";
+                                //var result = 0;
+                                var soHopDong = columnMappings["Số hợp đồng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]) : null;
+                                var name = columnMappings["Tên khách hàng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]) : "";
+                                var cmnd = columnMappings["CMND"] != -1 ? GetCellValue(worksheet, row, columnMappings["CMND"]) : "";
+                                var dob = columnMappings["Ngày Sinh"] != -1 ? GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]) : "";
+                                var phone = columnMappings["SDT"] != -1 ? GetCellValue(worksheet, row, columnMappings["SDT"]) : "";
+                                var address = columnMappings["Địa chỉ"] != -1 ? GetCellValue(worksheet, row, columnMappings["Địa chỉ"]) : "";
+                                var tongno = columnMappings["Tổng nợ"] != -1 ? GetCellValue(worksheet, row, columnMappings["Tổng nợ"]) : "";
+                                var hangthang = columnMappings["Số tiền cần thanh toán hàng tháng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]) : "";
                                 var message = "✔ Hợp đồng hợp lệ";
                                 var positionError = "NULL";
                                 var result = 0;
+
                                 //Kiểm tra điều kiện
                                 //Nếu hợp động null thì skip thực hiện qua row tiếp theo hoặc nếu trùng với số hợp đồng đã có từ trước sẽ lấy thằng đầu 
                                 if (soHopDong == null)
                                 {
+                                    soHopDong = "NULL";
                                     message = "✗ Không có mã hợp đồng!\n ";
                                     positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
                                     result = 1;
@@ -168,9 +190,9 @@ namespace WebApplication1.Controllers
                                     positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
                                     //continue;
                                 }
-                                if (ValidateVietnameseMobileNumber(phone) == null)
+                                if (ValidateVietnameseMobileNumber(phone) == null && columnMappings["SDT"] != -1)
                                 {
-                                    message += "⚠ Sai định dạng số điện thoại! \n";
+                                    message = "⚠ Sai định dạng số điện thoại! \n";
                                     positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
                                     phone = "";
                                 }
@@ -197,21 +219,39 @@ namespace WebApplication1.Controllers
                     
                 }
             }
-            //Thực hiện 
-            foreach(var client in clientList)
+            //Thực hiện insert vào DB chia theo từng batchSize để insert
+            int batchSize = 20000;
+            int totalCount = clientList.Count;
+            int batches = (int)Math.Ceiling((double)totalCount / batchSize);
+
+            for (int batchIndex = 0; batchIndex < batches; batchIndex++)
             {
-                //Add thông qua store procedure của SQL
-                try
+                int startIdx = batchIndex * batchSize;
+                int endIdx = Math.Min((batchIndex + 1) * batchSize, totalCount);
+
+                var currentBatch = clientList.GetRange(startIdx, endIdx - startIdx);
+
+                foreach (var client in currentBatch)
                 {
-                    if (client.result != 1)
+                    try
                     {
-                        _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
+                        if (client.result != 1)
+                        {
+                            _context.Database.ExecuteSqlInterpolated($"CALL jwdb.CheckAndUpdateContract({client.Id},{client.C_IdContract}, {client.C_Name}, {client.C_CMND}, {client.C_DayOfBirth}, {client.C_Phone}, {client.C_Address}, {client.C_Totalliabilities}, {client.C_AmountMonthly})");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return BadRequest(new
+                        {
+                            messeage = "Lỗi xử lí thực thi store SQL thêm dữ liệu vào db",
+                            errorCode = ""
+                        });
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                //Chờ thao tác thực thi store xong mới thực thi thao tác khác!
+                await _context.SaveChangesAsync();
             }
             //Dùng cơ chế batch để thực hiện cho 20k inser vào db
             await _context.SaveChangesAsync();

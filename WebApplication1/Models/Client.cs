@@ -3,10 +3,6 @@
     public class Client
     {
         public string Id { get; set; }
-        public Client()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public string CreatedBy { get; set; }
@@ -23,6 +19,12 @@
         public string C_CMND { get; set; }
         public string messeage { get; set; }
         public int result { get; set; }
+        public string positionError { get; set; }
         public ICollection<Member> members { get; set; }
+        public Client()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
     }
+    
 }

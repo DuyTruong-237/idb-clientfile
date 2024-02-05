@@ -11,6 +11,8 @@ using MySqlX.XDevAPI.Common;
 using Renci.SshNet.Messages;
 using System.Xml.Linq;
 using MySqlX.XDevAPI.Relational;
+using WebApplication1.Controllers.CheckConditionClient;
+using WebApplication1.Controllers.Logic;
 
 namespace WebApplication1.Controllers
 {
@@ -48,18 +50,8 @@ namespace WebApplication1.Controllers
             //}
 
             //Danh sách client
-            List<Client> clientList = new List<Client>();
+            //List<Client> clientList = new List<Client>();
 
-            string ValidateVietnameseMobileNumber(string number)
-            {
-                if(number is not null)
-                {
-                    string pattern = @"^(09[0-9]|03[2-9]|07[0-9]|08[1-9]|05[6-9])[0-9]{7}$";
-
-                    return Regex.IsMatch(number, pattern) ? number : null;
-                }
-                return null;
-            }
             string filePath = file.urlFile;
             if (filePath is null)
             {
@@ -69,156 +61,172 @@ namespace WebApplication1.Controllers
                     errorCode =""
                 });
             }
+            var configuration = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json")
+                            .Build();
+            //using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            //{
+            //    //await file.CopyToAsync(stream);
+            //    using (var package = new ExcelPackage(stream))
+            //    {
+            //        //Lấy số lượng sheet đang có trong file
+            //        int sheetCount = package.Workbook.Worksheets.Count;
+            //        for (int sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++)
+            //        {
+            //            ExcelWorksheet worksheet = package.Workbook.Worksheets[sheetIndex];
+            //            // Lấy tên của sheet hiện tại
+            //            string sheetName = worksheet.Name;
+            //            //Lấy số dòng của sheet hiện tại
+            //            int rowCount = worksheet.Dimension.Rows;
+            //            //Lấy số cột của sheet hiện tại
+            //            int colCount = worksheet.Dimension.Columns;
+            //            //Xác định tên của cột bỏ vào các vị trí có trong từ điển từ appsetting.Json
+                        
+            //            var excelColumnMappings = configuration.GetSection("ExcelColumnMappings").Get<Dictionary<string, string>>();
+            //            Dictionary<string, int> columnMappings = new Dictionary<string, int>();
+            //            //Import những trường từ trong file setting.Json vào columnMappings
+            //            foreach (var mapping in excelColumnMappings)
+            //            {
+            //                columnMappings.Add(mapping.Value, -1);
+            //            }
+            //            //{
+            //            //{ "Số hợp đồng", -1 },
+            //            //{ "Tên khách hàng", -1 },
+            //            //{ "CMND", -1 },
+            //            //{ "Ngày Sinh", -1 },
+            //            //{ "SDT", -1 },
+            //            //{ "Địa chỉ", -1 },
+            //            //{ "Tổng nợ", -1 },
+            //            //{ "Số tiền cần thanh toán hàng tháng", -1 }
+            //            //};
+            //            //Xác định thứ tự các cột có trong file 
+            //            for (int col = 1; col <= colCount; col++)
+            //            {
+            //                var cellValue = worksheet.Cells[1, col].Value?.ToString().Trim();
+            //                if (!string.IsNullOrEmpty(cellValue) && columnMappings.ContainsKey(cellValue))
+            //                {
+            //                    columnMappings[cellValue] = col;
+            //                }
+            //            }
 
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                //await file.CopyToAsync(stream);
-                using (var package = new ExcelPackage(stream))
-                {
-                    //Lấy số lượng sheet đang có trong file
-                    int sheetCount = package.Workbook.Worksheets.Count;
-                    for (int sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++)
-                    {
-                        ExcelWorksheet worksheet = package.Workbook.Worksheets[sheetIndex];
-                        // Lấy tên của sheet hiện tại
-                        string sheetName = worksheet.Name;
-                        //Lấy số dòng của sheet hiện tại
-                        int rowCount = worksheet.Dimension.Rows;
-                        //Lấy số cột của sheet hiện tại
-                        int colCount = worksheet.Dimension.Columns;
-                        //Xác định tên của cột bỏ vào các vị trí có trong từ điển
-                        Dictionary<string, int> columnMappings = new Dictionary<string, int>
-                        {
-                        { "Số hợp đồng", -1 },
-                        { "Tên khách hàng", -1 },
-                        { "CMND", -1 },
-                        { "Ngày Sinh", -1 },
-                        { "SDT", -1 },
-                        { "Địa chỉ", -1 },
-                        { "Tổng nợ", -1 },
-                        { "Số tiền cần thanh toán hàng tháng", -1 }
-                        };
-                        //Xác định thứ tự các cột có trong file 
-                        for (int col = 1; col <= colCount; col++)
-                        {
-                            var cellValue = worksheet.Cells[1, col].Value?.ToString().Trim();
-                            if (!string.IsNullOrEmpty(cellValue) && columnMappings.ContainsKey(cellValue))
-                            {
-                                columnMappings[cellValue] = col;
-                            }
-                        }
+            //            // Kiểm tra xem sheet hiện tại có chứa các cột hợp lệ hay không
+            //            //var missingColumns = columnMappings.Where(pair => pair.Value == -1).Select(pair => pair.Key).ToList();
+            //            // Kiểm tra tiêu đề các cột
+            //            if (!columnMappings.ContainsKey("Số hợp đồng") || columnMappings["Số hợp đồng"] == -1)
+            //            {
+            //                Console.WriteLine("File không đáp ứng yêu cầu về tiêu đề cột.");
+            //                var respondData1 = new
+            //                {
+            //                    Clients = new Client
+            //                    {
+            //                        C_IdContract = "NULL",
+            //                        C_Name = "",
+            //                        C_CMND = "",
+            //                        C_DayOfBirth = "",
+            //                        C_Phone = "",
+            //                        C_Address = "",
+            //                        C_Totalliabilities = "",
+            //                        C_AmountMonthly = "",
+            //                        result = 0,
+            //                        messeage = $"✗ File {file.fileName} không đúng theo template!",
+            //                        positionError = $"Lỗi thiếu cột Hợp đồng của {sheetName}"
+            //                    },
+            //                    agent = file.createBy,
+            //                    dateImport = file.dateUpload,
+            //                };
+            //                return Ok(respondData1);
+            //            }
+            //            int batchSize1 = 20000;
+            //            int totalRows = rowCount - 1; // Bỏ qua hàng đầu tiên vì nó là tiêu đề
+            //            int batches1 = (int)Math.Ceiling((double)totalRows / batchSize1);
+            //            for (int batchIndex = 0; batchIndex < batchSize1; batchIndex++)
+            //            {
+            //                int startRow = batchIndex * batchSize1 + 1; // Bắt đầu từ hàng thứ 2 (hàng đầu tiên là tiêu đề)
+            //                int endRow = Math.Min((batchIndex + 1) * batchSize1, totalRows) + 1;
+
+            //                // Xử lý từ startRow đến endRow
+            //                for (int row = startRow + 1; row <= endRow; row++)
+            //                {
 
 
-                        // Kiểm tra xem sheet hiện tại có chứa các cột hợp lệ hay không
-                        //var missingColumns = columnMappings.Where(pair => pair.Value == -1).Select(pair => pair.Key).ToList();
-                        // Kiểm tra tiêu đề các cột
-                        if (!columnMappings.ContainsKey("Số hợp đồng") || columnMappings["Số hợp đồng"] == -1)
-                        {
-                            Console.WriteLine("File không đáp ứng yêu cầu về tiêu đề cột.");
-                            var respondData1 = new
-                            {
-                                Clients = new Client
-                                {
-                                    C_IdContract = "NULL",
-                                    C_Name = "",
-                                    C_CMND = "",
-                                    C_DayOfBirth = "",
-                                    C_Phone = "",
-                                    C_Address = "",
-                                    C_Totalliabilities = "",
-                                    C_AmountMonthly = "",
-                                    result = 0,
-                                    messeage = $"✗ File {file.fileName} không đúng theo template!",
-                                    positionError = $"Lỗi thiếu cột Hợp đồng của {sheetName}"
-                                },
-                                agent = file.createBy,
-                                dateImport = file.dateUpload,
-                            };
-                            return Ok(respondData1);
-                        }
-                        int batchSize1 = 20000;
-                        int totalRows = rowCount - 1; // Bỏ qua hàng đầu tiên vì nó là tiêu đề
-                        int batches1 = (int)Math.Ceiling((double)totalRows / batchSize1);
-                        for (int batchIndex = 0; batchIndex < batchSize1; batchIndex++)
-                        {
-                            int startRow = batchIndex * batchSize1 + 1; // Bắt đầu từ hàng thứ 2 (hàng đầu tiên là tiêu đề)
-                            int endRow = Math.Min((batchIndex + 1) * batchSize1, totalRows) + 1;
+            //                    // Thực hiện xử lý của bạn ở đây
+            //                    //var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
+            //                    //var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
+            //                    //var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
+            //                    //var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
+            //                    //var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
+            //                    //var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
+            //                    //var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
+            //                    //var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
+            //                    //var message = "✔ Hợp đồng hợp lệ";
+            //                    //var positionError = "NULL";
+            //                    //var result = 0;
+            //                    var soHopDong = columnMappings["Số hợp đồng"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]) : "Null";
+            //                    var name = columnMappings["Tên khách hàng"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]) : "";
+            //                    var cmnd = columnMappings["CMND"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["CMND"]) : "";
+            //                    var dob = columnMappings["Ngày Sinh"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]) : "";
+            //                    var phone = columnMappings["SDT"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["SDT"]) : "";
+            //                    var address = columnMappings["Địa chỉ"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Địa chỉ"]) : "";
+            //                    var tongno = columnMappings["Tổng nợ"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Tổng nợ"]) : "";
+            //                    var hangthang = columnMappings["Số tiền cần thanh toán hàng tháng"] != -1 ? ValidationHelper.GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]) : "";
+            //                    var message = "✔ Hợp đồng hợp lệ";
+            //                    var positionError = "NULL";
+            //                    var result = 0;
 
-                            // Xử lý từ startRow đến endRow
-                            for (int row = startRow + 1; row <= endRow; row++)
-                            {
+            //                    //Kiểm tra điều kiện
+            //                    //Nếu hợp động null thì skip thực hiện qua row tiếp theo hoặc nếu trùng với số hợp đồng đã có từ trước sẽ lấy thằng đầu 
+            //                    //if (soHopDong == null)
+            //                    //{
+            //                    //    soHopDong = "NULL";
+            //                    //    message = "✗ Không có mã hợp đồng!\n ";
+            //                    //    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
+            //                    //    result = 1;
+            //                    //    //continue;
+            //                    //}
+            //                    //else if (clientList.Any(c => c.C_IdContract == soHopDong))
+            //                    //{
+            //                    //    message = "✗ Chỉ lấy hợp đồng đầu tiên! \n ";
+            //                    //    result = 1;
+            //                    //    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
+            //                    //    //continue;
+            //                    //}
+            //                    //if (ValidationHelper.ValidateVietnameseMobileNumber(phone) == null && columnMappings["SDT"] != -1)
+            //                    //{
+            //                    //    message = "⚠ Sai định dạng số điện thoại! \n";
+            //                    //    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
+            //                    //    phone = "";
+            //                    //}
+            //                    var validationResult = ValidationHelper.CheckRowConditions(soHopDong, clientList, phone, row, dob,sheetName);
 
 
-                                // Thực hiện xử lý của bạn ở đây
-                                //var soHopDong = GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]);
-                                //var name = GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]);
-                                //var cmnd = GetCellValue(worksheet, row, columnMappings["CMND"]);
-                                //var dob = GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]);
-                                //var phone = GetCellValue(worksheet, row, columnMappings["SDT"]);
-                                //var address = GetCellValue(worksheet, row, columnMappings["Địa chỉ"]);
-                                //var tongno = GetCellValue(worksheet, row, columnMappings["Tổng nợ"]);
-                                //var hangthang = GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]);
-                                //var message = "✔ Hợp đồng hợp lệ";
-                                //var positionError = "NULL";
-                                //var result = 0;
-                                var soHopDong = columnMappings["Số hợp đồng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Số hợp đồng"]) : null;
-                                var name = columnMappings["Tên khách hàng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Tên khách hàng"]) : "";
-                                var cmnd = columnMappings["CMND"] != -1 ? GetCellValue(worksheet, row, columnMappings["CMND"]) : "";
-                                var dob = columnMappings["Ngày Sinh"] != -1 ? GetCellValue(worksheet, row, columnMappings["Ngày Sinh"]) : "";
-                                var phone = columnMappings["SDT"] != -1 ? GetCellValue(worksheet, row, columnMappings["SDT"]) : "";
-                                var address = columnMappings["Địa chỉ"] != -1 ? GetCellValue(worksheet, row, columnMappings["Địa chỉ"]) : "";
-                                var tongno = columnMappings["Tổng nợ"] != -1 ? GetCellValue(worksheet, row, columnMappings["Tổng nợ"]) : "";
-                                var hangthang = columnMappings["Số tiền cần thanh toán hàng tháng"] != -1 ? GetCellValue(worksheet, row, columnMappings["Số tiền cần thanh toán hàng tháng"]) : "";
-                                var message = "✔ Hợp đồng hợp lệ";
-                                var positionError = "NULL";
-                                var result = 0;
+            //                    var client = new Client
+            //                    {
+            //                        C_IdContract = soHopDong,
+            //                        C_Name = name,
+            //                        C_CMND = cmnd,
+            //                        C_DayOfBirth = validationResult.Dob,
+            //                        C_Phone = validationResult.ModifiedPhone,
+            //                        C_Address = address,
+            //                        C_Totalliabilities = tongno,
+            //                        C_AmountMonthly = hangthang,
+            //                        messeage = validationResult.Message,
+            //                        result = validationResult.Result,
+            //                        positionError = validationResult.PositionError,
+            //                    };
+            //                    //Thêm vào danh sách 
+            //                    clientList.Add(client);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
-                                //Kiểm tra điều kiện
-                                //Nếu hợp động null thì skip thực hiện qua row tiếp theo hoặc nếu trùng với số hợp đồng đã có từ trước sẽ lấy thằng đầu 
-                                if (soHopDong == null)
-                                {
-                                    soHopDong = "NULL";
-                                    message = "✗ Không có mã hợp đồng!\n ";
-                                    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
-                                    result = 1;
-                                    //continue;
-                                }
-                                else if (clientList.Any(c => c.C_IdContract == soHopDong))
-                                {
-                                    message = "✗ Chỉ lấy hợp đồng đầu tiên! \n ";
-                                    result = 1;
-                                    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
-                                    //continue;
-                                }
-                                if (ValidateVietnameseMobileNumber(phone) == null && columnMappings["SDT"] != -1)
-                                {
-                                    message = "⚠ Sai định dạng số điện thoại! \n";
-                                    positionError = " Lỗi hàng " + (row) + " của " + (sheetName) + "!";
-                                    phone = "";
-                                }
+            // Create an instance of ExcelProcessor
+            var excelProcessor = new ExcelProcessor(configuration);
+            // Call the method to process Excel file
+            List<Client> clientList = excelProcessor.ProcessExcelFile(filePath,file);
 
-                                var client = new Client
-                                {
-                                    C_IdContract = soHopDong,
-                                    C_Name = name,
-                                    C_CMND = cmnd,
-                                    C_DayOfBirth = dob,
-                                    C_Phone = phone,
-                                    C_Address = address,
-                                    C_Totalliabilities = tongno,
-                                    C_AmountMonthly = hangthang,
-                                    messeage = message,
-                                    result = result,
-                                    positionError = positionError,
-                                };
-                                //Thêm vào danh sách 
-                                clientList.Add(client);
-                            }
-                        }
-                    }
-                    
-                }
-            }
             //Thực hiện insert vào DB chia theo từng batchSize để insert
             int batchSize = 20000;
             int totalCount = clientList.Count;
@@ -264,14 +272,6 @@ namespace WebApplication1.Controllers
 
             return Ok(respondData);
         }
-
-        //Hàm lấy giá trị của từng cột
-        private string GetCellValue(ExcelWorksheet worksheet, int row, int col)
-        {
-            if (col == -1) return null;
-            return worksheet.Cells[row, col].Value?.ToString().Trim();
-        }
-
         // Thêm các API khác ở đây nếu cần
     }
 }
